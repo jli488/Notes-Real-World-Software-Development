@@ -2,6 +2,11 @@ package Chapter04.List01;
 
 import java.util.Map;
 
+/**
+ * Domain classes allow us to name a concept and restrict the possible
+ * behaviors and values of this concept in order to improve discoverability
+ * and reduce the scope for bugs
+ */
 public class Document {
     private final Map<String, String> attributes;
 
