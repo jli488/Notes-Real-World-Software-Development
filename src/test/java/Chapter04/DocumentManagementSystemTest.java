@@ -1,4 +1,4 @@
-package Cahpter04;
+package Chapter04;
 
 import Chapter04.List01.Attributes;
 import Chapter04.List01.Document;
