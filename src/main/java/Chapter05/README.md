@@ -83,5 +83,39 @@ All tests are failing, but that’s fine. It gives us a reproducible test suite 
 
 However, there is one crucial operation missing. How do we write a test for the method run? Unfortunately, `run()` does not return any result. We are going to need a new technique called mocking to verify that the method `run()` operates correctly.
 
-## Mocking
+## Adding Conditions
 
+### Modeling state
+
+The users of the business rules engine will need to execute actions based on certain conditions. You may start by writing code that adds an action and refers to a local variable using a lambda expression.
+
+```java
+final Customer customer = new Customer("Mark", "CEO");
+
+businessRuleEngine.addAction(() -> {
+  if ("CEO".equals(customer.getJobTitle())) {  // Here is the condition we want to test
+    Mailer.sendEmail("sales@company.com", "Relevant customer: " + customer);
+  }
+})
+```
+
+This approach is inconvenient for several reasons:
+
+1. How do you test the action? It's not an independent piece of functionality: it has a hardcoded dependency on the customer object
+2. The customer object is not grouped with the action. It is a sort of external state that is shared around, leading to a confusing mix of responsibilities
+
+We need to encapsulate the state that is available to actions within the Business Rules Engine. We introduce a new class called `Facts`, which will represent the state available as part of the Business Rules Engine, and an updated `Action` interface that can operate on facts. This `Facts` class will decouple `Action` from `Customer` like this:
+
+```java
+businessRuleEngine.addAction(facts -> {
+  final String jobTitle = factos.getFact("jobTitle");
+  if ("CEO".equals(jobTitle)) {
+    final String name = facts.getFact("name");
+    Mailer.sendEmail("sales@company.com", "Relevant customer: " + name);
+  }
+})
+```
+
+### Interface Segregation Principle
+
+No class should be forced to depend on methods it does not use because this introduces unnecessary coupling. The ISP focuses on the user of an interface rather than its design. In other words, if an interface ends up very large, it may be that the user of that interface sees some behaviors it doesn’t care for, which causes unnecessary coupling.
